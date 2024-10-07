@@ -33,7 +33,7 @@ public class FileService {
     }
 
     private void saveFile(MultipartFile file, String url) throws IOException {
-        Path filePath = Paths.get("src/main/resources/files/", url);
+        Path filePath = Paths.get("/home/ubuntu/EduArchive/edu-archive-backend/files/", url);
         Files.copy(file.getInputStream(), filePath);
     }
 }

@@ -1,14 +1,19 @@
 package com.backend.file.presentation;
 
 import com.backend.file.service.FileService;
+import jakarta.servlet.ServletOutputStream;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import lombok.RequiredArgsConstructor;
-import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -30,24 +35,43 @@ public class FileController {
         return ResponseEntity.ok("파일이 업로드되었습니다.");
     }
 
-    @PostMapping("/download")
-    public ResponseEntity<FileSystemResource> downloadFile(@RequestParam("url") String url) {
-        String filePath = "src/main/resources/files/" + url;
+    @GetMapping("/download")
+    public void downloadFile(HttpServletResponse response, @RequestParam("url") String url) {
+        String filePath = "/home/ubuntu/EduArchive/edu-archive-backend/files/" + url;
         File file = new File(filePath);
 
         if (!file.exists()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+            return;
         }
 
-        FileSystemResource resource = new FileSystemResource(file);
+        response.setContentType("application/octet-stream");
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + file.getName());
+        // UTF-8 인코딩된 파일 이름 처리
+        String encodedFileName;
+        try {
+            encodedFileName = URLEncoder.encode(file.getName(), StandardCharsets.UTF_8.toString());
+            response.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename*=UTF-8''" + encodedFileName);
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            return;
+        }
 
-        return ResponseEntity.ok()
-                .headers(headers)
-                .contentType(MediaType.APPLICATION_OCTET_STREAM)
-                .body(resource);
+        response.setContentLength((int) file.length());
+
+        try (ServletOutputStream out = response.getOutputStream();
+            FileInputStream in = new FileInputStream(file)) {
+            byte[] buffer = new byte[8192];
+            int bytesRead;
+
+            while ((bytesRead = in.read(buffer)) != -1) {
+                out.write(buffer, 0, bytesRead);
+                out.flush();  // Flush 호출
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+        }
     }
 }
-
