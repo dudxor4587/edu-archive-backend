@@ -19,6 +19,9 @@ public class UserService {
     }
 
     public boolean isAdmin(Long userId) {
+        if(userId == null) {
+            return false;
+        }
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
         return user.getRole().equals(Role.ADMIN);
