@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+import com.backend.auth.HasRole;
 
 @RestController
 @RequestMapping("/api/files")
@@ -25,6 +26,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class FileController {
     private final FileService fileService;
 
+    @HasRole({"ADMIN"})
     @PostMapping("/upload")
     public ResponseEntity<String> uploadFile(@RequestParam("file") MultipartFile file, @RequestParam("directoryId") Long directoryId) {
         try {
@@ -35,6 +37,7 @@ public class FileController {
         return ResponseEntity.ok("파일이 업로드되었습니다.");
     }
 
+    @HasRole({"ADMIN", "MEMBER"})
     @GetMapping("/download")
     public void downloadFile(HttpServletResponse response, @RequestParam("url") String url) {
         String filePath = "/home/ubuntu/EduArchive/edu-archive-backend/files/" + url;

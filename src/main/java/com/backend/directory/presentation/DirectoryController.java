@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import com.backend.auth.HasRole;
 
 @RestController
 @RequestMapping("/api/directories")
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class DirectoryController {
     private final DirectoryService directoryService;
 
+    @HasRole({"ADMIN"})
     @PostMapping("/create")
     public ResponseEntity<String> createDirectory(@RequestBody @Valid DirectoryRequest directoryRequest) {
         Long parentId = directoryRequest.parentId();
