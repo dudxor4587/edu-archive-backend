@@ -1,11 +1,12 @@
 package com.backend.auth;
 
+import com.backend.user.presentation.status.Role;
 import jakarta.servlet.http.HttpSession;
+import lombok.RequiredArgsConstructor;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.reflect.MethodSignature;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import com.backend.user.domain.repository.UserRepository;
 import com.backend.user.domain.User;
@@ -14,16 +15,15 @@ import java.lang.reflect.Method;
 
 @Component
 @Aspect
+@RequiredArgsConstructor
 public class RoleCheckAspect {
 
-    @Autowired
-    private HttpSession session;
+    private final HttpSession session;
 
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
 
     @Before("@annotation(com.backend.auth.HasRole)")
-    public void checkRoleAccess(JoinPoint joinPoint) throws Exception {
+    public void checkRoleAccess(JoinPoint joinPoint){
         Long userId = (Long) session.getAttribute("userId");
         if (userId == null) {
             throw new UnauthorizedException("로그인되지 않은 사용자입니다.");
@@ -40,7 +40,7 @@ public class RoleCheckAspect {
 
         boolean hasAccess = false;
         for (String role : requiredRoles) {
-            if (user.getRole().equals(role)) {
+            if(user.getRole() == Role.valueOf(role)) {
                 hasAccess = true;
                 break;
             }
