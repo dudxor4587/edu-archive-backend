@@ -6,6 +6,7 @@ import jakarta.servlet.http.HttpSession;
 import java.util.HashMap;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
+@Slf4j
 @RequiredArgsConstructor
 @RequestMapping("/api/users")
 public class UserController {
@@ -25,6 +27,7 @@ public class UserController {
         String password = userRequest.password();
         Long userId = userService.doLogin(userName, password);
         session.setAttribute("userId", userId);
+        log.info("User {} logged in", userName);
         return ResponseEntity.ok("로그인에 성공하였습니다.");
     }
 
