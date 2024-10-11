@@ -3,6 +3,7 @@ package com.backend.file.presentation;
 import com.backend.file.service.FileService;
 import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -29,10 +30,12 @@ public class FileController {
 
     @HasRole({"ADMIN", "MANAGER"})
     @PostMapping("/upload")
-    public ResponseEntity<String> uploadFile(@RequestParam("file") MultipartFile file, @RequestParam("directoryId") Long directoryId) {
+    public ResponseEntity<String> uploadFile(@RequestParam("file") MultipartFile file, @RequestParam("directoryId") Long directoryId, HttpSession session) {
+        Long userId = (Long) session.getAttribute("userId");
         try {
-            fileService.uploadFile(file, directoryId);
+            fileService.uploadFile(file, directoryId, userId);
         } catch (Exception e) {
+            log.error("파일 업로드 중 오류 발생", e);
             return ResponseEntity.badRequest().body("파일 업로드에 실패했습니다.");
         }
         return ResponseEntity.ok("파일이 업로드되었습니다.");

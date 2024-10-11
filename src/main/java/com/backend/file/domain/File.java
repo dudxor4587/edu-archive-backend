@@ -1,6 +1,7 @@
 package com.backend.file.domain;
 
 import com.backend.directory.domain.Directory;
+import com.backend.user.domain.User;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -28,10 +29,15 @@ public class File {
     @JoinColumn(name = "directory_id")
     private Directory directory;
 
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
+
     @Builder
-    public File(String name, String url, Directory directory) {
+    public File(String name, String url, Directory directory, User user) {
         this.name = name;
         this.url = url;
         this.directory = directory;
+        this.user = user;
     }
 }

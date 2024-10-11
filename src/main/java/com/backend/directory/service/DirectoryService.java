@@ -36,10 +36,4 @@ public class DirectoryService {
         List<Directory> directories = directoryRepository.findAllDirectories();
         return DirectoryMapper.toDirectoryResponse(directories);
     }
-
-    @Transactional(readOnly = true)
-    public Directory getDirectory(Long directoryId) {
-        return directoryRepository.findById(directoryId)
-                .orElseThrow(() -> new IllegalArgumentException("Directory not found"));
-    }
 }
