@@ -24,6 +24,8 @@ public class User {
     @Enumerated(EnumType.STRING)
     private Role role;
 
+    private String name;
+
     public void login(String companyPassword) {
         if (this.password.equals(companyPassword)) {
             return;

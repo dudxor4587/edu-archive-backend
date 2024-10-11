@@ -6,10 +6,10 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -20,13 +20,14 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import com.backend.auth.HasRole;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/files")
 @RequiredArgsConstructor
 public class FileController {
     private final FileService fileService;
 
-    @HasRole({"ADMIN"})
+    @HasRole({"ADMIN", "MANAGER"})
     @PostMapping("/upload")
     public ResponseEntity<String> uploadFile(@RequestParam("file") MultipartFile file, @RequestParam("directoryId") Long directoryId) {
         try {
@@ -37,7 +38,7 @@ public class FileController {
         return ResponseEntity.ok("파일이 업로드되었습니다.");
     }
 
-    @HasRole({"ADMIN", "MEMBER"})
+    @HasRole({"ADMIN", "MANAGER", "MEMBER"})
     @GetMapping("/download")
     public void downloadFile(HttpServletResponse response, @RequestParam("url") String url) {
         String filePath = "/home/ubuntu/EduArchive/edu-archive-backend/files/" + url;
@@ -52,14 +53,8 @@ public class FileController {
 
         // UTF-8 인코딩된 파일 이름 처리
         String encodedFileName;
-        try {
-            encodedFileName = URLEncoder.encode(file.getName(), StandardCharsets.UTF_8.toString());
-            response.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename*=UTF-8''" + encodedFileName);
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            return;
-        }
+        encodedFileName = URLEncoder.encode(file.getName(), StandardCharsets.UTF_8);
+        response.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename*=UTF-8''" + encodedFileName);
 
         response.setContentLength((int) file.length());
 
@@ -70,10 +65,10 @@ public class FileController {
 
             while ((bytesRead = in.read(buffer)) != -1) {
                 out.write(buffer, 0, bytesRead);
-                out.flush();  // Flush 호출
+                out.flush();
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("파일 다운로드 중 오류 발생", e);
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
     }

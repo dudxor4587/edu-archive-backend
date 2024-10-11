@@ -22,7 +22,7 @@ import com.backend.auth.HasRole;
 public class DirectoryController {
     private final DirectoryService directoryService;
 
-    @HasRole({"ADMIN"})
+    @HasRole({"ADMIN", "MANAGER"})
     @PostMapping("/create")
     public ResponseEntity<String> createDirectory(@RequestBody @Valid DirectoryRequest directoryRequest) {
         Long parentId = directoryRequest.parentId();

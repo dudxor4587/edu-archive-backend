@@ -1,8 +1,11 @@
 package com.backend.user.service;
 
+import com.backend.common.exception.UserNotFoundException;
 import com.backend.user.domain.User;
 import com.backend.user.domain.repository.UserRepository;
+import com.backend.user.dto.response.UserResponse;
 import com.backend.user.presentation.status.Role;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -18,12 +21,19 @@ public class UserService {
         return user.getUserId();
     }
 
-    public boolean isAdmin(Long userId) {
+    public List<UserResponse> getUsers(List<Long> userIds) {
+        return userRepository.findAllById(userIds).stream()
+                .filter(user -> !user.getRole().equals(Role.ADMIN))
+                .map(UserResponse::from)
+                .toList();
+    }
+
+    public boolean checkPermission(Long userId, Role role) {
         if(userId == null) {
             return false;
         }
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
-        return user.getRole().equals(Role.ADMIN);
+                .orElseThrow(() -> new UserNotFoundException("사용자를 찾을 수 없습니다."));
+        return user.getRole().equals(role);
     }
 }
