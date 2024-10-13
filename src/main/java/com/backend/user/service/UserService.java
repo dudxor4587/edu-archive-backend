@@ -16,8 +16,9 @@ public class UserService {
 
     public Long doLogin(String userName, String password) {
         User user = userRepository.findByUserName(userName)
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException("사용자를 찾을 수 없습니다."));
         user.login(password);
+        updateLastLoginTime(user);
         return user.getUserId();
     }
 
@@ -35,5 +36,10 @@ public class UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("사용자를 찾을 수 없습니다."));
         return user.getRole().equals(role);
+    }
+
+    private void updateLastLoginTime(User user) {
+        user.updateLastLoginTime();
+        userRepository.save(user);
     }
 }

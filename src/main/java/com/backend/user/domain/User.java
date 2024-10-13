@@ -1,5 +1,6 @@
 package com.backend.user.domain;
 
+import com.backend.common.exception.UnauthorizedException;
 import com.backend.user.presentation.status.Role;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -8,10 +9,14 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import java.time.LocalDateTime;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
+@NoArgsConstructor
 @Table(name = "user")
 public class User {
     @Id
@@ -19,6 +24,7 @@ public class User {
     private Long userId;
 
     private String userName;
+
     private String password;
 
     @Enumerated(EnumType.STRING)
@@ -26,10 +32,24 @@ public class User {
 
     private String name;
 
-    public void login(String companyPassword) {
-        if (this.password.equals(companyPassword)) {
+    private LocalDateTime lastLoginTime;
+
+    @Builder
+    public User(String userName, String password, Role role, String name) {
+        this.userName = userName;
+        this.password = password;
+        this.role = role;
+        this.name = name;
+    }
+
+    public void login(String password) {
+        if (this.password.equals(password)) {
             return;
         }
-        throw new IllegalArgumentException("Password does not match");
+        throw new UnauthorizedException("비밀번호가 일치하지 않습니다.");
+    }
+
+    public void updateLastLoginTime() {
+        this.lastLoginTime = LocalDateTime.now();
     }
 }
