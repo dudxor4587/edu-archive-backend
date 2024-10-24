@@ -1,6 +1,6 @@
 package com.backend.user.service;
 
-import com.backend.common.exception.UserNotFoundException;
+import com.backend.user.exception.UserNotFoundException;
 import com.backend.user.domain.User;
 import com.backend.user.domain.repository.UserRepository;
 import com.backend.user.dto.response.UserResponse;
@@ -40,6 +40,10 @@ public class UserService {
 
     private void updateLastLoginTime(User user) {
         user.updateLastLoginTime();
+        userRepository.save(user);
+    }
+
+    public void createUser(User user) {
         userRepository.save(user);
     }
 }

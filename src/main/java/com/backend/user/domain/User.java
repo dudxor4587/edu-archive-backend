@@ -1,6 +1,6 @@
 package com.backend.user.domain;
 
-import com.backend.common.exception.UnauthorizedException;
+import com.backend.user.exception.UnauthorizedException;
 import com.backend.user.presentation.status.Role;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -35,11 +35,12 @@ public class User {
     private LocalDateTime lastLoginTime;
 
     @Builder
-    public User(String userName, String password, Role role, String name) {
+    public User(String userName, String password, Role role, String name, LocalDateTime lastLoginTime) {
         this.userName = userName;
         this.password = password;
         this.role = role;
         this.name = name;
+        this.lastLoginTime = lastLoginTime;
     }
 
     public void login(String password) {

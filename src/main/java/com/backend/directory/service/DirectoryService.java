@@ -4,6 +4,7 @@ import com.backend.directory.domain.Directory;
 import com.backend.directory.domain.mapper.DirectoryMapper;
 import com.backend.directory.domain.repository.DirectoryRepository;
 import com.backend.directory.dto.response.DirectoryResponse;
+import com.backend.directory.exception.DirectoryNotFoundException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -23,7 +24,7 @@ public class DirectoryService {
             return;
         }
         Directory parent = directoryRepository.findById(parentId)
-                .orElseThrow(() -> new IllegalArgumentException("Parent directory not found"));
+                .orElseThrow(() -> new DirectoryNotFoundException("부모 디렉토리를 찾을 수 없습니다."));
 
         directoryRepository.save(Directory.builder()
                 .name(directoryName)

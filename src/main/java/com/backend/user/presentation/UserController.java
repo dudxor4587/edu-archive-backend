@@ -70,7 +70,7 @@ public class UserController {
 
     @HasRole({"ADMIN"})
     @GetMapping("/inactive-user")
-    public ResponseEntity<String> getInactiveUsers(@RequestParam Long userId) {
+    public ResponseEntity<String> getInactiveUsers(@RequestParam("userId") Long userId) {
         sessionManager.removeSessionByUserId(userId);
         return ResponseEntity.ok("사용자를 강제 로그아웃 시켰습니다.");
     }
