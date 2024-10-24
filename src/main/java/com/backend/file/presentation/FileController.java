@@ -1,17 +1,14 @@
 package com.backend.file.presentation;
 
+import com.backend.file.exception.FileNotFoundException;
 import com.backend.file.service.FileService;
-import jakarta.servlet.ServletOutputStream;
+import com.backend.file.util.FileDownloadUtil;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,6 +24,7 @@ import com.backend.auth.HasRole;
 @RequiredArgsConstructor
 public class FileController {
     private final FileService fileService;
+    private final FileDownloadUtil fileDownloadUtil;
 
     @HasRole({"ADMIN", "MANAGER"})
     @PostMapping("/upload")
@@ -44,32 +42,13 @@ public class FileController {
     @HasRole({"ADMIN", "MANAGER", "MEMBER"})
     @GetMapping("/download")
     public void downloadFile(HttpServletResponse response, @RequestParam("url") String url) {
-        String filePath = "/home/ubuntu/EduArchive/edu-archive-backend/files/" + url;
-        File file = new File(filePath);
-
-        if (!file.exists()) {
+        File file;
+        try {
+            file = fileService.getFile(url);
+            fileDownloadUtil.writeFileToResponse(file, response);
+        } catch (FileNotFoundException e) {
+            log.error(e.getMessage());
             response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-            return;
-        }
-
-        response.setContentType("application/octet-stream");
-
-        // UTF-8 인코딩된 파일 이름 처리
-        String encodedFileName;
-        encodedFileName = URLEncoder.encode(file.getName(), StandardCharsets.UTF_8);
-        response.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename*=UTF-8''" + encodedFileName);
-
-        response.setContentLength((int) file.length());
-
-        try (ServletOutputStream out = response.getOutputStream();
-            FileInputStream in = new FileInputStream(file)) {
-            byte[] buffer = new byte[8192];
-            int bytesRead;
-
-            while ((bytesRead = in.read(buffer)) != -1) {
-                out.write(buffer, 0, bytesRead);
-                out.flush();
-            }
         } catch (IOException e) {
             log.error("파일 다운로드 중 오류 발생", e);
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
