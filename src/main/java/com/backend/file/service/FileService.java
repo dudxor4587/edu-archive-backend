@@ -45,13 +45,13 @@ public class FileService {
     }
 
     private void saveFile(MultipartFile file, String url) throws IOException {
-        Path filePath = Paths.get("/home/ubuntu/EduArchive/edu-archive-backend/files/", url);
+        Path filePath = Paths.get("/home/ubuntu/eduArchive/edu-archive-backend/files/", url);
         Files.copy(file.getInputStream(), filePath);
     }
 
     @Transactional
     public java.io.File getFile(String url) throws FileNotFoundException {
-        String filePath = "/home/ubuntu/EduArchive/edu-archive-backend/files/" + url;
+        String filePath = "/home/ubuntu/eduArchive/edu-archive-backend/files/" + url;
         java.io.File file = new java.io.File(filePath);
 
         if (!file.exists()) {
