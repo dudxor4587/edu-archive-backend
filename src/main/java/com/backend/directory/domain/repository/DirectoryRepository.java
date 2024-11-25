@@ -6,6 +6,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 public interface DirectoryRepository extends JpaRepository<Directory, Long> {
-    @Query("SELECT d FROM Directory d LEFT JOIN FETCH d.files")
+    @Query("SELECT d FROM Directory d LEFT JOIN FETCH d.files order by d.name")
     List<Directory> findAllDirectories();
 }

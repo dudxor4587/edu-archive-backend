@@ -11,6 +11,7 @@ public class FileMapper {
     public static List<FileResponse> toFileResponse(List<File> files) {
         return files.stream()
                 .map(file -> new FileResponse(
+                        file.getFileId(),
                         file.getName(),
                         file.getUrl()
                 ))

@@ -5,6 +5,7 @@ import static com.backend.file.domain.mapper.FileMapper.toFileResponse;
 import com.backend.directory.dto.response.DirectoryResponse;
 import com.backend.directory.domain.Directory;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -25,6 +26,7 @@ public class DirectoryMapper {
 
     private static List<DirectoryResponse> findChildren(Directory parent) {
         return parent.getChildren().stream() // 부모의 children 속성을 사용
+                .sorted(Comparator.comparing(Directory::getName))
                 .map(directory -> new DirectoryResponse(
                         directory.getName(),
                         directory.getDirectoryId(),
