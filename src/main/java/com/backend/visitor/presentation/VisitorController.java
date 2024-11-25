@@ -1,13 +1,16 @@
 package com.backend.visitor.presentation;
 
+import com.backend.auth.HasRole;
+import com.backend.visitor.dto.response.MonthlyVisitorResponse;
 import com.backend.visitor.util.CookieUtils;
 import com.backend.visitor.util.TimeUtils;
-import com.backend.visitor.dto.response.VisitorResponse;
+import com.backend.visitor.dto.response.TotalVisitorResponse;
 import com.backend.visitor.service.RedisService;
 import com.backend.visitor.service.VisitorService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -38,10 +41,17 @@ public class VisitorController {
         return ResponseEntity.ok().build();
     }
 
+    @HasRole("ADMIN")
     @GetMapping("/count")
-    public ResponseEntity<VisitorResponse> getVisitorCount() {
+    public ResponseEntity<TotalVisitorResponse> getVisitorCount() {
         Long visitorCount = redisService.getVisitorCount("TOTAL");
-        return ResponseEntity.ok(new VisitorResponse(visitorCount));
+        return ResponseEntity.ok(new TotalVisitorResponse(visitorCount));
+    }
+
+    @HasRole("ADMIN")
+    @GetMapping("/monthly")
+    public ResponseEntity<List<MonthlyVisitorResponse>> getMonthlyVisitorCount() {
+        return ResponseEntity.ok(visitorService.getMonthlyVisitorCount());
     }
 
     private String determineVisitorId(HttpServletRequest request, HttpServletResponse response, HttpSession session) {

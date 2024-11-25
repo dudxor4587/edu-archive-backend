@@ -4,19 +4,24 @@ import static com.backend.visitor.service.RedisService.REDIS_KEY_MONTHLY_VISITOR
 import static com.backend.visitor.service.RedisService.REDIS_KEY_TOTAL_VISITOR_COUNT;
 import static com.backend.visitor.service.RedisService.REDIS_KEY_VISITOR;
 
+import com.backend.visitor.dto.response.MonthlyVisitorResponse;
+import com.backend.visitor.mapper.VisitorMapper;
 import com.backend.visitor.util.TimeUtils;
 import com.backend.visitor.domain.Visitor;
 import com.backend.visitor.domain.repository.VisitorRepository;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
 public class VisitorService {
     private final RedisService redisService;
     private final VisitorRepository visitorRepository;
+    private final VisitorMapper visitorMapper;
 
     public boolean recordVisit(String visitorId) {
         String redisKey = REDIS_KEY_VISITOR + visitorId;
@@ -34,6 +39,7 @@ public class VisitorService {
         return true;
     }
 
+    @Transactional(readOnly = true)
     public void saveVisitorCount(String range, Long visitorCount) {
         Visitor visitor = visitorRepository.findByTargetRange(range);
         if (visitor == null) {
@@ -50,5 +56,12 @@ public class VisitorService {
 
     private String getCurrentMonth() {
         return LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM"));
+    }
+
+    public List<MonthlyVisitorResponse> getMonthlyVisitorCount() {
+        return visitorMapper.toMonthlyVisitorResponses(visitorRepository.findAll().stream()
+                .filter(visitor -> !"TOTAL".equals(visitor.getTargetRange()))
+                .toList()
+        );
     }
 }

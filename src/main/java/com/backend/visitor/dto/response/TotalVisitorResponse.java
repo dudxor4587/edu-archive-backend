@@ -1,6 +1,6 @@
 package com.backend.visitor.dto.response;
 
-public record VisitorResponse(
+public record TotalVisitorResponse(
     Long visitorCount
 ) {
 }
