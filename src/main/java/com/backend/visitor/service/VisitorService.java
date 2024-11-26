@@ -39,7 +39,7 @@ public class VisitorService {
         return true;
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public void saveVisitorCount(String range, Long visitorCount) {
         Visitor visitor = visitorRepository.findByTargetRange(range);
         if (visitor == null) {
