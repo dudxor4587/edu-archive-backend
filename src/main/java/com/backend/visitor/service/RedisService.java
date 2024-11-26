@@ -1,5 +1,6 @@
 package com.backend.visitor.service;
 
+import com.backend.visitor.domain.repository.VisitorRepository;
 import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -13,6 +14,7 @@ public class RedisService {
     public static final String REDIS_KEY_VISITOR = "VISITOR:";
 
     private final StringRedisTemplate redisTemplate;
+    private final VisitorRepository visitorRepository;
 
     public boolean isVisitorExist(String key) {
         return Boolean.TRUE.equals(redisTemplate.hasKey(key));
@@ -23,7 +25,12 @@ public class RedisService {
                 REDIS_KEY_TOTAL_VISITOR_COUNT :
                 REDIS_KEY_MONTHLY_VISITOR_COUNT + range;
         String count = redisTemplate.opsForValue().get(countKey);
-        return count != null ? Long.parseLong(count) : 0L;
+        if(count == null) {
+            Long visitorCount = visitorRepository.findByTargetRange(range).getVisitorCount();
+            updateVisitorCount(range, visitorCount);
+            return visitorCount;
+        }
+        return Long.parseLong(count);
     }
 
     public void deleteVisitorCountMonth(String month) {

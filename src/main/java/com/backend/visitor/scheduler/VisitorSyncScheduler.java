@@ -1,7 +1,7 @@
 package com.backend.visitor.scheduler;
 
 import com.backend.visitor.service.RedisService;
-import com.backend.visitor.service.VisitorService;
+import com.backend.visitor.service.VisitorUpdateService;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import lombok.RequiredArgsConstructor;
@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
 public class VisitorSyncScheduler {
 
     private final RedisService redisService;
-    private final VisitorService visitorService;
+    private final VisitorUpdateService visitorUpdateService;
 
     @Scheduled(cron = "0 0 0 * * *")
     public void syncTotalVisitorCountToDatabase() {
@@ -23,7 +23,7 @@ public class VisitorSyncScheduler {
         Long visitorCount = redisService.getVisitorCount(getCurrentMonth());
 
         if (visitorCount != null) {
-            visitorService.saveVisitorCount("TOTAL", visitorCount);
+            visitorUpdateService.saveVisitorCount("TOTAL", visitorCount);
         }
     }
 
@@ -32,7 +32,7 @@ public class VisitorSyncScheduler {
         log.info("syncMonthlyVisitorCountToDatabase 실행됨");
         Long monthlyVisitorCount = redisService.getVisitorCount(getCurrentMonth());
 
-        visitorService.saveVisitorCount(getCurrentMonth(), monthlyVisitorCount);
+        visitorUpdateService.saveVisitorCount(getCurrentMonth(), monthlyVisitorCount);
 
     }
 
