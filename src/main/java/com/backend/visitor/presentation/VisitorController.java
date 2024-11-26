@@ -1,7 +1,10 @@
 package com.backend.visitor.presentation;
 
+import static com.backend.visitor.util.TimeUtils.getCurrentMonth;
+
 import com.backend.auth.HasRole;
 import com.backend.visitor.dto.response.MonthlyVisitorResponse;
+import com.backend.visitor.service.VisitorUpdateService;
 import com.backend.visitor.util.CookieUtils;
 import com.backend.visitor.util.TimeUtils;
 import com.backend.visitor.dto.response.TotalVisitorResponse;
@@ -27,6 +30,7 @@ import java.util.UUID;
 public class VisitorController {
     private final VisitorService visitorService;
     private final RedisService redisService;
+    private final VisitorUpdateService visitorUpdateService;
 
     @GetMapping
     public ResponseEntity<Void> visit(HttpServletRequest request, HttpServletResponse response, HttpSession session) {
@@ -45,12 +49,14 @@ public class VisitorController {
     @GetMapping("/count")
     public ResponseEntity<TotalVisitorResponse> getVisitorCount() {
         Long visitorCount = redisService.getVisitorCount("TOTAL");
+        visitorUpdateService.saveVisitorCount("TOTAL", visitorCount);
         return ResponseEntity.ok(new TotalVisitorResponse(visitorCount));
     }
 
     @HasRole("ADMIN")
     @GetMapping("/monthly")
     public ResponseEntity<List<MonthlyVisitorResponse>> getMonthlyVisitorCount() {
+        visitorUpdateService.saveVisitorCount(getCurrentMonth(), redisService.getVisitorCount(getCurrentMonth()));
         return ResponseEntity.ok(visitorService.getMonthlyVisitorCount());
     }
 
@@ -76,4 +82,5 @@ public class VisitorController {
 
         return visitorId;
     }
+
 }

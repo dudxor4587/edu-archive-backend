@@ -1,9 +1,10 @@
 package com.backend.visitor.scheduler;
 
+import static com.backend.visitor.util.TimeUtils.getCurrentMonth;
+import static com.backend.visitor.util.TimeUtils.getLastMonth;
+
 import com.backend.visitor.service.RedisService;
 import com.backend.visitor.service.VisitorUpdateService;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -42,13 +43,5 @@ public class VisitorSyncScheduler {
         String lastMonth = getLastMonth();
 
         redisService.deleteVisitorCountMonth(lastMonth);
-    }
-
-    private String getCurrentMonth() {
-        return LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM"));
-    }
-
-    private String getLastMonth() {
-        return LocalDate.now().minusMonths(1).format(DateTimeFormatter.ofPattern("yyyy-MM"));
     }
 }
