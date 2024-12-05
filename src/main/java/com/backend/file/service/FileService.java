@@ -1,5 +1,6 @@
 package com.backend.file.service;
 
+import com.backend.config.FileProperties;
 import com.backend.directory.domain.Directory;
 import com.backend.directory.domain.repository.DirectoryRepository;
 import com.backend.directory.exception.DirectoryNotFoundException;
@@ -15,16 +16,19 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class FileService {
     private final FileRepository fileRepository;
     private final DirectoryRepository directoryRepository;
     private final UserRepository userRepository;
+    private final FileProperties fileProperties;
 
     @Transactional
     public void uploadFile(MultipartFile file, Long directoryId, Long userId) throws IOException {
@@ -45,13 +49,13 @@ public class FileService {
     }
 
     private void saveFile(MultipartFile file, String url) throws IOException {
-        Path filePath = Paths.get("/home/ubuntu/eduArchive/edu-archive-backend/files/", url);
+        Path filePath = Paths.get(fileProperties.getPath(), url);
         Files.copy(file.getInputStream(), filePath);
     }
 
     @Transactional
     public java.io.File getFile(String url) throws FileNotFoundException {
-        String filePath = "/home/ubuntu/eduArchive/edu-archive-backend/files/" + url;
+        String filePath = fileProperties.getPath() + url;
         java.io.File file = new java.io.File(filePath);
 
         if (!file.exists()) {
