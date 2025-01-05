@@ -1,5 +1,6 @@
 package com.backend.visitor.scheduler;
 
+import static com.backend.visitor.service.RedisService.REDIS_KEY_MONTHLY_VISITOR_COUNT;
 import static com.backend.visitor.util.TimeUtils.getCurrentMonth;
 import static com.backend.visitor.util.TimeUtils.getLastMonth;
 
@@ -18,7 +19,7 @@ public class VisitorSyncScheduler {
     private final RedisService redisService;
     private final VisitorUpdateService visitorUpdateService;
 
-    @Scheduled(cron = "0 0 0 * * *")
+    @Scheduled(cron = "59 23 0 * * *")
     public void syncTotalVisitorCountToDatabase() {
         log.info("syncTotalVisitorCountToDatabase 실행됨");
         Long visitorCount = redisService.getVisitorCount(getCurrentMonth());
@@ -28,7 +29,7 @@ public class VisitorSyncScheduler {
         }
     }
 
-    @Scheduled(cron = "0 0 0 * * *")
+    @Scheduled(cron = "59 23 0 * * *")
     public void syncMonthlyVisitorCountToDatabase() {
         log.info("syncMonthlyVisitorCountToDatabase 실행됨");
         Long monthlyVisitorCount = redisService.getVisitorCount(getCurrentMonth());
@@ -43,5 +44,7 @@ public class VisitorSyncScheduler {
         String lastMonth = getLastMonth();
 
         redisService.deleteVisitorCountMonth(lastMonth);
+        redisService.setMonthlyRedisKey(REDIS_KEY_MONTHLY_VISITOR_COUNT + getCurrentMonth());
     }
+
 }

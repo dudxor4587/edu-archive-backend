@@ -41,6 +41,10 @@ public class RedisService {
         redisTemplate.opsForValue().increment(key);
     }
 
+    public void setMonthlyRedisKey(String key) {
+        redisTemplate.opsForValue().setIfAbsent(key, "0");
+    }
+
     public void setVisitorKey(String key, String value, long timeoutSeconds) {
         redisTemplate.opsForValue().set(key, value, timeoutSeconds, TimeUnit.SECONDS);
     }
