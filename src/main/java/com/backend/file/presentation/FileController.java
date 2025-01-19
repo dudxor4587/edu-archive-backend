@@ -41,11 +41,12 @@ public class FileController {
 
     @HasRole({"ADMIN", "MANAGER", "MEMBER"})
     @GetMapping("/download")
-    public void downloadFile(HttpServletResponse response, @RequestParam("url") String url) {
+    public void downloadFile(HttpServletResponse response, @RequestParam("url") String url, HttpSession session) {
         File file;
+        Long userId = (Long) session.getAttribute("userId");
         try {
             file = fileService.getFile(url);
-            fileDownloadUtil.writeFileToResponse(file, response);
+            fileDownloadUtil.writeFileToResponse(file, response, userId);
         } catch (FileNotFoundException e) {
             log.error(e.getMessage());
             response.setStatus(HttpServletResponse.SC_NOT_FOUND);

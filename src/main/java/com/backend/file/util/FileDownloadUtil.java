@@ -7,13 +7,15 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;
 
 @Component
+@Slf4j
 public class FileDownloadUtil {
 
-    public void writeFileToResponse(File file, HttpServletResponse response) throws IOException {
+    public void writeFileToResponse(File file, HttpServletResponse response, Long userId) throws IOException {
         response.setContentType("application/octet-stream");
         String encodedFileName = URLEncoder.encode(file.getName(), StandardCharsets.UTF_8);
         response.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename*=UTF-8''" + encodedFileName);
@@ -29,5 +31,6 @@ public class FileDownloadUtil {
                 out.flush();
             }
         }
+        log.info("user {} downloaded file {}", userId, file.getName());
     }
 }

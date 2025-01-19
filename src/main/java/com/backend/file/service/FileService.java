@@ -46,6 +46,7 @@ public class FileService {
                 .directory(directory)
                 .user(user)
                 .build());
+        log.info("user {} uploaded file {}", userId, fileName);
     }
 
     private void saveFile(MultipartFile file, String url) throws IOException {

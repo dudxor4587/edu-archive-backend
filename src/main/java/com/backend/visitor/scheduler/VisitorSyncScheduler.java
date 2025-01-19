@@ -23,6 +23,7 @@ public class VisitorSyncScheduler {
     public void syncTotalVisitorCountToDatabase() {
         log.info("syncTotalVisitorCountToDatabase 실행됨");
         Long totalVisitorCount = redisService.getVisitorCount("TOTAL");
+        log.info("total visitor count : {}", totalVisitorCount);
 
         if (totalVisitorCount != null) {
             visitorUpdateService.saveVisitorCount("TOTAL", totalVisitorCount);
@@ -33,6 +34,7 @@ public class VisitorSyncScheduler {
     public void syncMonthlyVisitorCountToDatabase() {
         log.info("syncMonthlyVisitorCountToDatabase 실행됨");
         Long monthlyVisitorCount = redisService.getVisitorCount(getCurrentMonth());
+        log.info("monthly visitor count : {}", monthlyVisitorCount);
 
         visitorUpdateService.saveVisitorCount(getCurrentMonth(), monthlyVisitorCount);
 
