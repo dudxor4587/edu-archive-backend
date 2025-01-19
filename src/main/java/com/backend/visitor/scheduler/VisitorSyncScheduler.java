@@ -22,10 +22,10 @@ public class VisitorSyncScheduler {
     @Scheduled(cron = "59 23 0 * * *")
     public void syncTotalVisitorCountToDatabase() {
         log.info("syncTotalVisitorCountToDatabase 실행됨");
-        Long visitorCount = redisService.getVisitorCount(getCurrentMonth());
+        Long totalVisitorCount = redisService.getVisitorCount("TOTAL");
 
-        if (visitorCount != null) {
-            visitorUpdateService.saveVisitorCount("TOTAL", visitorCount);
+        if (totalVisitorCount != null) {
+            visitorUpdateService.saveVisitorCount("TOTAL", totalVisitorCount);
         }
     }
 
