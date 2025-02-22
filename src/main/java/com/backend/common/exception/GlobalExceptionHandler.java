@@ -18,7 +18,14 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 public class GlobalExceptionHandler {
 
     private void logException(Exception ex) {
-        log.error("Exception: {}", ex.getMessage());
+        String message = ex.getMessage();
+        // static resource 관련 에러는 무시
+        if (message != null && 
+            (message.contains("No static resource") || 
+             message.startsWith("No static"))) {
+            return;
+        }
+        log.error("Exception: {}", message);
     }
 
     @ExceptionHandler(UnauthorizedException.class)
