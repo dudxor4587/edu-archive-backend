@@ -6,6 +6,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.backend.user.domain.repository.SignupRequestRepository;
 import com.backend.user.exception.UnauthorizedException;
 import com.backend.user.domain.User;
 import com.backend.user.domain.repository.UserRepository;
@@ -34,10 +35,16 @@ class UserServiceTest {
     @Mock
     private UserRepository userRepository; // Mock 객체 선언
 
+    @Mock
+    private SignupRequestRepository signupRequestRepository;
+
+    @Mock
+    private EmailService emailService;
+
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this); // Mock 객체 초기화
-        userService = new UserService(userRepository);
+        userService = new UserService(userRepository, signupRequestRepository, emailService);
         User user = User.builder()
                 .userName("testUser")
                 .password("testPassword")
