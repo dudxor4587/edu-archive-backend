@@ -1,6 +1,7 @@
 package com.backend.directory.presentation;
 
 import com.backend.directory.dto.request.DirectoryCreateRequest;
+import com.backend.directory.dto.response.CreateDirectoryResponse;
 import com.backend.directory.dto.response.DirectoryResponse;
 import com.backend.directory.service.DirectoryService;
 import jakarta.validation.Valid;
@@ -24,11 +25,10 @@ public class DirectoryController {
 
     @HasRole({"ADMIN", "MANAGER"})
     @PostMapping
-    public ResponseEntity<String> createDirectory(@RequestBody @Valid DirectoryCreateRequest directoryRequest) {
+    public ResponseEntity<CreateDirectoryResponse> createDirectory(@RequestBody @Valid DirectoryCreateRequest directoryRequest) {
         Long parentId = directoryRequest.parentId();
         String directoryName = directoryRequest.directoryName();
-        directoryService.createDirectory(parentId, directoryName);
-        return ResponseEntity.ok("디렉토리가 생성되었습니다.");
+        return ResponseEntity.ok(directoryService.createDirectory(parentId, directoryName));
     }
 
     @GetMapping("/lists")

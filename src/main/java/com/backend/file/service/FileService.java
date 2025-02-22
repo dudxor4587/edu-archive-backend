@@ -6,6 +6,7 @@ import com.backend.directory.domain.repository.DirectoryRepository;
 import com.backend.directory.exception.DirectoryNotFoundException;
 import com.backend.file.domain.File;
 import com.backend.file.domain.repository.FileRepository;
+import com.backend.file.dto.response.FileResponse;
 import com.backend.file.exception.FileNotFoundException;
 import com.backend.user.domain.User;
 import com.backend.user.domain.repository.UserRepository;
@@ -31,22 +32,26 @@ public class FileService {
     private final FileProperties fileProperties;
 
     @Transactional
-    public void uploadFile(MultipartFile file, Long directoryId, Long userId) throws IOException {
+    public FileResponse uploadFile(MultipartFile file, Long directoryId, Long userId) throws IOException {
         String fileName = file.getOriginalFilename();
         String url = UUID.randomUUID() + "_" + file.getOriginalFilename();
+
         Directory directory = directoryRepository.findById(directoryId).orElseThrow(
                 () -> new DirectoryNotFoundException("디렉토리를 찾을 수 없습니다."));
         User user = userRepository.findById(userId).orElseThrow(
                 () -> new UserNotFoundException("사용자를 찾을 수 없습니다."));
 
         saveFile(file, url);
-        fileRepository.save(File.builder()
+        File savedFile = fileRepository.save(File.builder()
                 .name(fileName)
                 .url(url)
                 .directory(directory)
                 .user(user)
                 .build());
+
         log.info("user {} uploaded file {}", userId, fileName);
+
+        return new FileResponse(savedFile.getFileId(), savedFile.getName(), savedFile.getUrl());
     }
 
     private void saveFile(MultipartFile file, String url) throws IOException {
